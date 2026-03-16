@@ -1,180 +1,215 @@
 ---
-description: Scaffold a complete bounded context/module with aggregate, CRUD operations, versioned controller, domain events, and tests
+description: Scaffold a complete bounded context/module with all best practices - aggregate, commands, queries, events, controller, tests
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
-argument-hint: <ModuleName> <AggregateName>
+argument-hint: <BoundedContext> <AggregateName>
 ---
 
-# Scaffold New Bounded Context Module
+# Scaffold Complete Bounded Context Module with All Best Practices
 
-Parse `$ARGUMENTS` to extract `ModuleName` (BoundedContext name) and `AggregateName`. If missing, ask the user.
+Parse `$ARGUMENTS` to extract `BoundedContext` and `AggregateName`. If missing, ask the user.
 
-Follow ALL patterns and conventions defined in the root `CLAUDE.md`. Read it first.
+This scaffolds a **complete, production-ready bounded context** including:
+- ✅ Domain: Aggregate, ID, Errors, Events
+- ✅ Application: Commands, Queries, Handlers, Validators (with SharedRules)
+- ✅ Infrastructure: Repository, EF Configuration
+- ✅ Api: Versioned Controller
+- ✅ Tests: Unit Tests, Integration Tests
+- ✅ All best practices: Soft Delete, Auditing, Result<T>, ILogger, Specifications, etc.
 
-This command scaffolds an entire production-ready module. Execute each step in sequence.
-
----
-
-## Step 1 — Domain Layer
-
-### 1.1 Strongly Typed ID
-`src/Domain/{ModuleName}/ValueObjects/{AggregateName}Id.cs`
-```csharp
-public readonly record struct {AggregateName}Id(Guid Value) : IStronglyTypedId;
-```
-
-### 1.2 Domain Errors
-`src/Domain/{ModuleName}/Errors/{AggregateName}Errors.cs`
-```csharp
-public static class {AggregateName}Errors
-{
-    public static readonly Error NotFound = new("{ModuleName}.{AggregateName}.NotFound", "...");
-    public static readonly Error NameTooLong = new("{ModuleName}.{AggregateName}.NameTooLong", "...");
-}
-```
-
-### 1.3 Domain Events
-`src/Domain/{ModuleName}/Events/{AggregateName}CreatedDomainEvent.cs`
-`src/Domain/{ModuleName}/Events/{AggregateName}UpdatedDomainEvent.cs`
-`src/Domain/{ModuleName}/Events/{AggregateName}DeletedDomainEvent.cs`
-
-### 1.4 Aggregate Root
-`src/Domain/{ModuleName}/Entities/{AggregateName}.cs`
-- Sealed class extending `AggregateRoot<{AggregateName}Id>`.
-- Private EF Core constructor.
-- `static Result<{AggregateName}> Create(string name, ...)` → raises `{AggregateName}CreatedDomainEvent`.
-- `Result Update(string name, ...)` → raises `{AggregateName}UpdatedDomainEvent`.
-- `Result Delete()` → sets soft-delete flag or raises `{AggregateName}DeletedDomainEvent`.
-- Properties: `Name`, `CreatedAt`, `UpdatedAt` (at minimum).
-
-### 1.5 Repository Interface
-`src/Domain/{ModuleName}/Repositories/I{AggregateName}Repository.cs`
-- Extends `IRepository<{AggregateName}, {AggregateName}Id>`.
-- Add: `Task<IReadOnlyList<{AggregateName}>> GetPagedAsync(int page, int pageSize, CancellationToken ct)`.
-- Add: `Task<int> CountAsync(CancellationToken ct)`.
+Follow patterns in `CLAUDE.md`, `PROJECT_STRUCTURE.md`, and `BEST_PRACTICES.md`.
 
 ---
 
-## Step 2 — Application Layer (CQRS)
+## Complete Module Scaffold Checklist
 
-### 2.1 Commands
-Create command + handler + validator for each:
+### Domain Layer
+- [ ] Create {AggregateName}Id strongly typed ID
+- [ ] Create {AggregateName}Errors static class
+- [ ] Create {AggregateName}CreatedDomainEvent, UpdatedDomainEvent, DeletedDomainEvent
+- [ ] Create {AggregateName} aggregate root extending AuditableEntity<{AggregateName}Id>
+  - [ ] Private EF Core constructor
+  - [ ] Create() factory → Result<{AggregateName}>
+  - [ ] Update() method → Result
+  - [ ] Delete() method → soft delete
+  - [ ] All properties private setters
+  - [ ] RaiseDomainEvent() calls in methods
+- [ ] Create I{AggregateName}Repository interface extending IRepository
+  - [ ] Custom query methods
+  - [ ] Specification support
 
-**Create:** `src/Application/Features/{ModuleName}/Commands/Create{AggregateName}/`
-- Command: `Create{AggregateName}Command(string Name, ...) : IRequest<Result<{AggregateName}Id>>`
-- Handler: load none, call `{AggregateName}.Create(...)`, `repository.Add(entity)`, `unitOfWork.SaveChangesAsync`.
-- Validator: validate all input fields.
+### Application Layer
+- [ ] Create{AggregateName}Command, Handler, Validator (uses SharedRules)
+- [ ] Update{AggregateName}Command, Handler, Validator
+- [ ] Delete{AggregateName}Command, Handler, Validator
+- [ ] Get{AggregateName}ByIdQuery, Handler, Response
+- [ ] Get{AggregateName}ListQuery, Handler, Response
+- [ ] {AggregateName}ByStatus Specification (for list queries)
+- [ ] Domain event handlers:
+  - [ ] {AggregateName}CreatedDomainEventHandler (with ILogger)
+  - [ ] {AggregateName}UpdatedDomainEventHandler
+  - [ ] {AggregateName}DeletedDomainEventHandler
 
-**Update:** `src/Application/Features/{ModuleName}/Commands/Update{AggregateName}/`
-- Command: `Update{AggregateName}Command({AggregateName}Id Id, string Name, ...) : IRequest<Result>`
-- Handler: load by ID (return NotFound if null), call `entity.Update(...)`, `unitOfWork.SaveChangesAsync`.
-- Validator: validate ID not empty, validate fields.
+### Infrastructure Layer
+- [ ] {AggregateName}Repository implements I{AggregateName}Repository
+  - [ ] Uses SpecificationEvaluator for queries
+  - [ ] Logging in all methods
+- [ ] {AggregateName}Configuration (IEntityTypeConfiguration)
+  - [ ] Soft delete configuration
+  - [ ] Auditing fields
+  - [ ] Row version for concurrency
+  - [ ] Global query filter for soft delete
+- [ ] Update ApplicationDbContext.cs:
+  - [ ] Add DbSet<{AggregateName}>
+  - [ ] Register configuration
+- [ ] Update DependencyInjection.cs:
+  - [ ] Register I{AggregateName}Repository, {AggregateName}Repository
 
-**Delete:** `src/Application/Features/{ModuleName}/Commands/Delete{AggregateName}/`
-- Command: `Delete{AggregateName}Command({AggregateName}Id Id) : IRequest<Result>`
-- Handler: load by ID, call `entity.Delete()`, `unitOfWork.SaveChangesAsync`.
-- Validator: validate ID not empty.
+### Api Layer
+- [ ] {AggregateName}Controller [ApiVersion("1")] in Controllers/V1/
+  - [ ] POST Create {AggregateName} → 201 Created
+  - [ ] PUT Update {AggregateName} → 204 NoContent
+  - [ ] DELETE {AggregateName} → 204 NoContent
+  - [ ] GET by ID → 200 OK or 404 NotFound
+  - [ ] GET list with pagination → 200 OK
+  - [ ] ILogger injected
+  - [ ] Correlation ID in log context
+  - [ ] Error responses with ErrorResponse model
+  - [ ] XML documentation for all endpoints
+  - [ ] [Authorize] on write operations
 
-### 2.2 Queries
-**GetById:** `src/Application/Features/{ModuleName}/Queries/Get{AggregateName}ById/`
-- Query: `Get{AggregateName}ByIdQuery({AggregateName}Id Id) : IRequest<Result<{AggregateName}Response>>`
-- Response: `{AggregateName}Response(Guid Id, string Name, ...)`.
-- Handler: load by ID, map to response DTO, return NotFound if null.
+### Tests
+- [ ] UnitTests/Domain/{BoundedContext}/{AggregateName}Tests.cs
+  - [ ] Create_Should_Return*_When_ValidData
+  - [ ] Create_Should_ReturnFailure_When_InvalidData
+  - [ ] Update_Should_RaiseDomainEvent
+  - [ ] Delete_Should_SetDeletedAt (soft delete)
+- [ ] UnitTests/Application/{BoundedContext}/Commands/
+  - [ ] Create{AggregateName}CommandHandlerTests
+  - [ ] Update{AggregateName}CommandHandlerTests
+  - [ ] Delete{AggregateName}CommandHandlerTests
+- [ ] UnitTests/Application/{BoundedContext}/Queries/
+  - [ ] Get{AggregateName}ByIdQueryHandlerTests
+  - [ ] Get{AggregateName}ListQueryHandlerTests
+- [ ] IntegrationTests/Api/{BoundedContext}/{AggregateName}ControllerTests.cs
+  - [ ] Post_Should_Create_When_ValidRequest → 201
+  - [ ] Get_Should_Return_When_Exists → 200
+  - [ ] Get_Should_ReturnNotFound_When_NotFound → 404
+  - [ ] Put_Should_Update_When_Exists → 204
+  - [ ] Delete_Should_Delete_When_Exists → 204
+  - [ ] Post_Should_ReturnBadRequest_When_Invalid → 400
 
-**GetList:** `src/Application/Features/{ModuleName}/Queries/Get{AggregateName}List/`
-- Query: `Get{AggregateName}ListQuery(int Page = 1, int PageSize = 20) : IRequest<Result<PagedList<{AggregateName}Response>>>`
-- Handler: call `GetPagedAsync` + `CountAsync`, map to `PagedList<{AggregateName}Response>`.
-
-### 2.3 Domain Event Handler
-`src/Application/Features/{ModuleName}/Events/{AggregateName}CreatedDomainEventHandler.cs`
-- `INotificationHandler<{AggregateName}CreatedDomainEvent>`.
-- Log the event at minimum. Expand as needed.
-
----
-
-## Step 3 — Infrastructure Layer
-
-### 3.1 EF Core Configuration
-`src/Infrastructure/Persistence/Configurations/{AggregateName}Configuration.cs`
-- `IEntityTypeConfiguration<{AggregateName}>`.
-- Configure typed ID conversion.
-- Configure table name as `{AggregateName}s`.
-- Configure property constraints.
-
-### 3.2 Repository Implementation
-`src/Infrastructure/Persistence/Repositories/{AggregateName}Repository.cs`
-- Implements `I{AggregateName}Repository`.
-- Primary constructor injecting `ApplicationDbContext`.
-- Implement all interface methods.
-
-### 3.3 Register in DbContext and DI
-- Add `public DbSet<{AggregateName}> {AggregateName}s => Set<{AggregateName}>();` to `ApplicationDbContext`.
-- Register `I{AggregateName}Repository` → `{AggregateName}Repository` in DI container.
-
----
-
-## Step 4 — API Layer
-
-### 4.1 Controller
-`src/Api/Controllers/V1/{AggregateName}sController.cs`
-```csharp
-[ApiController]
-[ApiVersion("1")]
-[Route("api/v{version:apiVersion}/[controller]")]
-public sealed class {AggregateName}sController(ISender sender) : ControllerBase
-{
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken ct) { ... }
-
-    [HttpGet]
-    public async Task<IActionResult> GetList([FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default) { ... }
-
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Create{AggregateName}Request request, CancellationToken ct) { ... }
-
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] Update{AggregateName}Request request, CancellationToken ct) { ... }
-
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken ct) { ... }
-}
-```
-- Map `Result` failures to appropriate HTTP status codes using the global error handling middleware.
-- Request records: `Create{AggregateName}Request`, `Update{AggregateName}Request` in `src/Api/Contracts/`.
+### Documentation
+- [ ] Update SWAGGER - XML comments on controller
+- [ ] Verify all error codes documented in ErrorResponse
+- [ ] Add migration: `dotnet ef migrations add Add{AggregateName}Table ...`
 
 ---
 
-## Step 5 — Migration
+## Quick Commands to Use
 
-Run: `dotnet ef migrations add Add{ModuleName}Module --project src/Infrastructure --startup-project src/Api`
-
-Verify the generated migration looks correct.
-
----
-
-## Step 6 — Tests
-
-### 6.1 Unit Tests
-`tests/UnitTests/Domain/{ModuleName}/{AggregateName}Tests.cs`
-- Test `Create`: valid, invalid name, etc.
-- Test `Update`: valid, domain error.
-- Test domain events are raised.
-
-`tests/UnitTests/Application/{ModuleName}/Commands/Create{AggregateName}CommandHandlerTests.cs`
-- Mock repository + IUnitOfWork.
-- Test success path, test entity not found.
-
-### 6.2 Integration Tests
-`tests/IntegrationTests/Api/{ModuleName}/{AggregateName}sTests.cs`
-- Tests for all 5 endpoints: GET by ID, GET list, POST, PUT, DELETE.
-- Cover: 200/201, 400 validation, 404 not found.
-
----
-
-## Final Verification
+After selecting this scaffold, use individual skills for each component:
 
 ```bash
-dotnet build
-dotnet test
+# Aggregate root with all best practices
+/new-aggregate {BoundedContext} {AggregateName}
+
+# CQRS commands
+/new-command {BoundedContext} Create{AggregateName}
+/new-command {BoundedContext} Update{AggregateName}
+/new-command {BoundedContext} Delete{AggregateName}
+
+# CQRS queries
+/new-query {BoundedContext} Get{AggregateName}ById
+/new-query {BoundedContext} Get{AggregateName}List
+
+# Domain events
+/new-domain-event {BoundedContext} {AggregateName}Created {BoundedContext}
+/new-domain-event {BoundedContext} {AggregateName}Updated {BoundedContext}
+/new-domain-event {BoundedContext} {AggregateName}Deleted {BoundedContext}
+
+# Tests
+/new-unit-test src/Domain/{BoundedContext}/Entities/{AggregateName}.cs
+/new-integration-test {BoundedContext} {AggregateName}Controller
+
+# Or scaffold entire module at once (requires multiple file creations)
 ```
 
-All tests must pass before the scaffold is considered complete.
+---
+
+## Key Patterns Integrated
+
+✅ **Soft Delete** - DeletedAt field, global filter, interceptor
+✅ **Auditing** - CreatedBy, ModifiedBy, timestamps auto-set
+✅ **Concurrency Control** - RowVersion for optimistic locking
+✅ **Result<T> Pattern** - No exceptions for control flow
+✅ **Strongly Typed IDs** - Type-safe identifiers
+✅ **Domain Events** - Raised in aggregate, handled asynchronously
+✅ **Specification Pattern** - Reusable, composable queries
+✅ **Shared Validation Rules** - ValidateName(), ValidateEmail(), etc.
+✅ **Structured Logging** - ILogger<T> with correlation context
+✅ **Versioned API** - api/v{version:apiVersion}/ routes
+✅ **Health Checks** - /health/live, /health/ready endpoints
+✅ **Exception Handling** - Structured ErrorResponse with TraceId
+✅ **Authorization** - [Authorize] on sensitive operations
+✅ **Swagger/OpenAPI** - Auto-generated documentation
+
+---
+
+## Step-by-Step Implementation Order
+
+1. **Domain First** - Aggregate, Errors, Events
+2. **Application** - Commands, Queries, Validators
+3. **Infrastructure** - Repository, Configuration, DI
+4. **Api** - Controller, Middleware integration
+5. **Tests** - Unit tests, Integration tests
+6. **Database** - Migrations and setup
+7. **Documentation** - Swagger, API docs
+
+---
+
+## Post-Creation Steps
+
+```bash
+# Create and apply migration
+dotnet ef migrations add Add{AggregateName}Table \
+    --project src/Infrastructure \
+    --startup-project src/Api
+
+# Run tests
+dotnet test tests/UnitTests
+dotnet test tests/IntegrationTests
+
+# Verify build and formatting
+dotnet build
+dotnet format --verify-no-changes
+
+# Check Swagger
+open http://localhost:5000/swagger (after running the app)
+```
+
+---
+
+## Validation Checklist
+
+- ✅ All files use file-scoped namespaces
+- ✅ Controllers inject ILogger<T>
+- ✅ Handlers inject ILogger<T>
+- ✅ All factory methods return Result<T>
+- ✅ All domain methods return Result or Result<T>
+- ✅ Repository uses Specification<T> for queries
+- ✅ Soft delete queries use global filter
+- ✅ Validation rules use SharedRules
+- ✅ Event handlers use ILogger
+- ✅ Tests use AAA pattern
+- ✅ Tests verify Result success/failure branches
+- ✅ Integration tests use Testcontainers
+- ✅ API endpoints have XML docs
+- ✅ Swagger definitions are complete
+
+---
+
+**Complete reference:**
+- See `BEST_PRACTICES.md` for detailed patterns
+- See `PROJECT_STRUCTURE.md` for file organization
+- See individual `/new-*` commands for specific components
+

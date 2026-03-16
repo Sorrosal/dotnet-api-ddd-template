@@ -1,80 +1,281 @@
 ---
-description: Scaffold unit tests for a domain entity, value object, or application command/query handler
+description: Scaffold unit tests for domain entities, value objects, and application handlers using AAA pattern and Result assertions
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 argument-hint: <FullClassName or relative path>
 ---
 
-# Scaffold Unit Tests
+# Scaffold Unit Tests with AAA Pattern and Result<T>
 
-Parse `$ARGUMENTS` to identify the class to test. Read that class first to understand its structure.
+Parse `$ARGUMENTS` to identify the class to test. Read that class first to understand its structure and Result<T> usage.
 
-Follow ALL patterns and conventions defined in the root `CLAUDE.md`. Read it first.
+Follow patterns in `CLAUDE.md`, `PROJECT_STRUCTURE.md`, and `BEST_PRACTICES.md`.
 
-## Determine Test Type
+---
 
-Read the target class and determine what it is:
+## Test Types and Locations
 
-| Target type | Test location | Test approach |
-|---|---|---|
-| Domain entity / Aggregate | `tests/UnitTests/Domain/{BoundedContext}/{ClassName}Tests.cs` | Test `Create`, state methods, domain event raising |
-| Value object | `tests/UnitTests/Domain/{BoundedContext}/{ClassName}Tests.cs` | Test `Create` validation, equality |
-| Command handler | `tests/UnitTests/Application/{Feature}/Commands/{Handler}Tests.cs` | Mock repo + UoW with NSubstitute |
-| Query handler | `tests/UnitTests/Application/{Feature}/Queries/{Handler}Tests.cs` | Mock repo with NSubstitute |
+| Target | Location | Framework | Approach |
+|--------|----------|-----------|----------|
+| Domain Entity / Aggregate | `tests/UnitTests/Domain/{BoundedContext}/{ClassName}Tests.cs` | xUnit + FluentAssertions | Test Create, state methods, events, Result handling |
+| Value Object | `tests/UnitTests/Domain/{BoundedContext}/{ClassName}Tests.cs` | xUnit + FluentAssertions | Test validation, equality, Result errors |
+| Command Handler | `tests/UnitTests/Application/{Feature}/Commands/{Handler}Tests.cs` | xUnit + NSubstitute + FluentAssertions | Mock repos, test Result success/failure |
+| Query Handler | `tests/UnitTests/Application/{Feature}/Queries/{Handler}Tests.cs` | xUnit + NSubstitute + FluentAssertions | Mock repos, test Result responses |
 
-## Test File Structure
+---
+
+## AAA Pattern: Arrange-Act-Assert
 
 ```csharp
-namespace DotnetApiDddTemplate.UnitTests.{Layer}.{Path};
-
-public sealed class {ClassName}Tests
+[Fact]
+public async Task Handle_Should_ReturnOrderId_When_ValidRequest()
 {
-    // For handlers: declare substitutes as fields
-    private readonly I{Repository} _{repository} = Substitute.For<I{Repository}>();
-    private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
-    private readonly {Handler} _sut;
+    // Arrange: Setup test data, mocks, expected values
+    var command = new CreateOrderCommand("Test Order", "Description");
+    var mockRepository = Substitute.For<IOrderRepository>();
+    var mockUnitOfWork = Substitute.For<IUnitOfWork>();
+    var handler = new CreateOrderCommandHandler(mockRepository, mockUnitOfWork);
 
-    public {ClassName}Tests()
-    {
-        _sut = new {Handler}(_{repository}, _unitOfWork);
-    }
+    // Act: Execute the method being tested
+    var result = await handler.Handle(command, CancellationToken.None);
 
+    // Assert: Verify the result
+    result.IsSuccess.Should().BeTrue();
+    result.Value.Should().NotBeEmpty();
+    await mockUnitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+}
+```
+
+---
+
+## Domain Entity / Aggregate Tests
+
+```csharp
+public sealed class OrderTests
+{
     [Fact]
-    public async Task Handle_Should_Return{ReturnType}_When_ValidRequest()
+    public void Create_Should_ReturnSuccess_When_ValidData()
     {
         // Arrange
+        const string name = "Test Order";
+        const string description = "Test Description";
+
         // Act
-        // Assert — FluentAssertions
+        var result = Order.Create(name, description);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Name.Should().Be(name);
+        result.Value.Description.Should().Be(description);
+        result.Value.DomainEvents.Should().ContainSingle(e => e is OrderCreatedDomainEvent);
     }
 
     [Fact]
-    public async Task Handle_Should_ReturnFailure_When_EntityNotFound()
+    public void Create_Should_ReturnFailure_When_NameEmpty()
     {
-        // Arrange — repository returns null
         // Act
-        // Assert result.IsFailure.Should().BeTrue()
+        var result = Order.Create("", "Description");
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Order.InvalidName");
+    }
+
+    [Fact]
+    public void AddItem_Should_RaiseDomainEvent_When_ItemAdded()
+    {
+        // Arrange
+        var order = Order.Create("Test", "Desc").Value;
+        var productId = new ProductId(Guid.NewGuid());
+
+        // Act
+        var result = order.AddItem(productId, 5);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        order.DomainEvents.Should().ContainSingle(e => e is OrderItemAddedDomainEvent);
     }
 }
 ```
 
-## For Domain Entities / Aggregates
+---
 
-- Test `Create` with valid data → returns `Result.Success`, entity has correct state, domain event is raised.
-- Test `Create` with each invalid input → returns `Result.Failure` with expected error.
-- Test each state-changing method: valid transition and invalid transition.
-- Verify domain events: `entity.DomainEvents.Should().ContainSingle(e => e is {EventName}DomainEvent)`.
+## Value Object Tests
 
-## For Value Objects
+```csharp
+public sealed class MoneyTests
+{
+    [Fact]
+    public void Create_Should_ReturnSuccess_When_ValidData()
+    {
+        // Act
+        var result = Money.Create(100m, "USD");
 
-- Test `Create` with valid input → success, value equals expected.
-- Test `Create` with each invalid input → failure with expected error.
-- Test equality: two instances with same values should be equal.
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Amount.Should().Be(100m);
+        result.Value.Currency.Should().Be("USD");
+    }
 
-## For Command Handlers
+    [Fact]
+    public void Create_Should_ReturnFailure_When_NegativeAmount()
+    {
+        // Act
+        var result = Money.Create(-50m, "USD");
 
-- Mock repository with `NSubstitute` (`Substitute.For<IRepository>()`).
-- Setup return values with `_repo.GetByIdAsync(Arg.Any<Id>()).Returns(entity)`.
-- Verify `SaveChangesAsync` was called: `await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>())`.
-- Test failure when entity not found: repository returns `null`, result is failure.
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Money.InvalidAmount");
+    }
+
+    [Fact]
+    public void Equality_Should_BeValueBased()
+    {
+        // Act
+        var money1 = Money.Create(100m, "USD").Value;
+        var money2 = Money.Create(100m, "USD").Value;
+
+        // Assert
+        money1.Should().Be(money2);
+    }
+
+    [Theory]
+    [InlineData(100, "USD")]
+    [InlineData(50.25, "EUR")]
+    [InlineData(999999.99, "GBP")]
+    public void Create_Should_ReturnSuccess_When_ValidAmounts(decimal amount, string currency)
+    {
+        // Act
+        var result = Money.Create(amount, currency);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+    }
+}
+```
+
+---
+
+## Command Handler Tests (with Mocking)
+
+```csharp
+public sealed class CreateOrderCommandHandlerTests
+{
+    private readonly IOrderRepository _mockRepository = Substitute.For<IOrderRepository>();
+    private readonly IUnitOfWork _mockUnitOfWork = Substitute.For<IUnitOfWork>();
+    private readonly ILogger<CreateOrderCommandHandler> _mockLogger = Substitute.For<ILogger<CreateOrderCommandHandler>>();
+    private readonly CreateOrderCommandHandler _sut;
+
+    public CreateOrderCommandHandlerTests()
+    {
+        _sut = new CreateOrderCommandHandler(_mockRepository, _mockUnitOfWork, _mockLogger);
+    }
+
+    [Fact]
+    public async Task Handle_Should_ReturnOrderId_When_ValidRequest()
+    {
+        // Arrange
+        var command = new CreateOrderCommand("Test Order", "Description");
+
+        // Act
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().NotBeEmpty();
+        await _mockRepository.Received(1).AddAsync(Arg.Any<Order>(), Arg.Any<CancellationToken>());
+        await _mockUnitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_Should_ReturnFailure_When_InvalidName()
+    {
+        // Arrange
+        var command = new CreateOrderCommand("", "Description");
+
+        // Act
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Order.InvalidName");
+        await _mockRepository.DidNotReceive().AddAsync(Arg.Any<Order>(), Arg.Any<CancellationToken>());
+        await _mockUnitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_Should_ReturnConcurrencyError_When_ConcurrentModification()
+    {
+        // Arrange
+        var command = new CreateOrderCommand("Test", "Desc");
+        _mockUnitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
+            .ThrowsAsync(new DbUpdateConcurrencyException("Concurrency", []));
+
+        // Act
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Concurrency.Conflict");
+    }
+}
+```
+
+---
+
+## Query Handler Tests
+
+```csharp
+public sealed class GetOrderByIdQueryHandlerTests
+{
+    private readonly IOrderRepository _mockRepository = Substitute.For<IOrderRepository>();
+    private readonly ILogger<GetOrderByIdQueryHandler> _mockLogger = Substitute.For<ILogger<GetOrderByIdQueryHandler>>();
+    private readonly GetOrderByIdQueryHandler _sut;
+
+    public GetOrderByIdQueryHandlerTests()
+    {
+        _sut = new GetOrderByIdQueryHandler(_mockRepository, _mockLogger);
+    }
+
+    [Fact]
+    public async Task Handle_Should_ReturnResponse_When_OrderExists()
+    {
+        // Arrange
+        var orderId = new OrderId(Guid.NewGuid());
+        var order = Order.Create("Test", "Desc").Value;
+        _mockRepository.GetByIdAsync(orderId, Arg.Any<CancellationToken>())
+            .Returns(order);
+
+        var query = new GetOrderByIdQuery(orderId.Value);
+
+        // Act
+        var result = await _sut.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Name.Should().Be("Test");
+    }
+
+    [Fact]
+    public async Task Handle_Should_ReturnNotFound_When_OrderDoesNotExist()
+    {
+        // Arrange
+        var orderId = new OrderId(Guid.NewGuid());
+        _mockRepository.GetByIdAsync(orderId, Arg.Any<CancellationToken>())
+            .Returns((Order?)null);
+
+        var query = new GetOrderByIdQuery(orderId.Value);
+
+        // Act
+        var result = await _sut.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Order.NotFound");
+    }
+}
+```
+
+---
 
 ## Naming Convention
 
@@ -84,10 +285,71 @@ Examples:
 - `Create_Should_ReturnOrderId_When_ValidRequest`
 - `Handle_Should_ReturnNotFound_When_OrderDoesNotExist`
 - `AddItem_Should_RaiseDomainEvent_When_ItemIsValid`
+- `Create_Should_ReturnFailure_When_NameEmpty`
+
+---
+
+## Assertions for Result<T>
+
+```csharp
+// Success assertions
+result.IsSuccess.Should().BeTrue();
+result.Value.Should().NotBeNull();
+result.Value.Should().Be(expected);
+
+// Failure assertions
+result.IsFailure.Should().BeTrue();
+result.Error.Code.Should().Be("ExpectedCode");
+result.Error.Message.Should().Contain("expected text");
+
+// Event assertions
+entity.DomainEvents.Should().ContainSingle();
+entity.DomainEvents.Should().ContainSingle(e => e is OrderCreatedDomainEvent);
+```
+
+---
+
+## Mocking with NSubstitute
+
+```csharp
+// Setup return value
+_repository.GetByIdAsync(Arg.Any<OrderId>(), Arg.Any<CancellationToken>())
+    .Returns(order);
+
+// Verify method was called
+await _repository.Received(1).AddAsync(Arg.Any<Order>(), Arg.Any<CancellationToken>());
+
+// Verify method was NOT called
+await _repository.DidNotReceive().DeleteAsync(Arg.Any<OrderId>(), Arg.Any<CancellationToken>());
+
+// Throw exception
+_unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
+    .ThrowsAsync(new DbUpdateConcurrencyException("message", []));
+```
+
+---
 
 ## Guidelines
 
-- Use `[Fact]` for single cases, `[Theory]` with `[InlineData]` for parameterized cases.
-- Use FluentAssertions: `.Should().Be(...)`, `.Should().BeTrue()`, `.Should().ContainSingle(...)`.
-- Tests must be deterministic — no external dependencies, no clocks, no randomness (use fixed values or Bogus seeded).
-- Verify build: `dotnet build` then `dotnet test tests/UnitTests`.
+✅ Use AAA pattern: Arrange, Act, Assert
+✅ Test Result<T>.IsSuccess and Result<T>.IsFailure branches
+✅ Use FluentAssertions for readable assertions
+✅ Use NSubstitute for mocking
+✅ Name tests clearly following convention
+✅ Test both happy path and error cases
+✅ Verify domain events are raised
+✅ Mock external dependencies (repo, UoW, logger)
+✅ Use [Theory] for parameterized tests with multiple inputs
+✅ Keep tests deterministic (no DateTime.Now, use fixed values)
+❌ Don't test framework code (EF Core, MediatR)
+❌ Don't make tests interdependent
+❌ Don't test implementation details
+
+---
+
+**Run tests:**
+```bash
+dotnet test tests/UnitTests
+```
+
+**Reference:** `BEST_PRACTICES.md` - Result Pattern, Exception Handling
