@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Domain.Customers.Errors;
+﻿namespace DotnetApiDddTemplate.Domain.Customers.Errors;
 
 public static class CustomerErrors
 {

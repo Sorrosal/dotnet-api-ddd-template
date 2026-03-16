@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.IntegrationTests.Common;
+﻿namespace DotnetApiDddTemplate.IntegrationTests.Common;
 
 /// <summary>
 /// Custom web application factory for integration tests.

@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Infrastructure.Extensions;
+﻿namespace DotnetApiDddTemplate.Infrastructure.Extensions;
 
 /// <summary>
 /// Dependency injection configuration extensions for Infrastructure layer.

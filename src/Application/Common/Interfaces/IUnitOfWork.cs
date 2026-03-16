@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Common.Interfaces;
+﻿namespace DotnetApiDddTemplate.Application.Common.Interfaces;
 
 /// <summary>
 /// Unit of Work pattern interface.

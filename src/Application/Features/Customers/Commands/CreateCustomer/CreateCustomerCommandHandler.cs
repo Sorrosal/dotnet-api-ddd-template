@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Features.Customers.Commands.CreateCustomer;
+﻿namespace DotnetApiDddTemplate.Application.Features.Customers.Commands.CreateCustomer;
 
 /// <summary>
 /// Handler for CreateCustomerCommand.

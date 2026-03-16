@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Api.Controllers.V1;
+﻿namespace DotnetApiDddTemplate.Api.Controllers.V1;
 
 /// <summary>
 /// API endpoints for customer management.
@@ -18,7 +18,7 @@ public sealed class CustomersController(
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Created customer ID and location header</returns>
     [HttpPost]
-    
+
     [Authorize]
     public async Task<IActionResult> CreateCustomer(
         [FromBody] CreateCustomerRequest request,
@@ -59,7 +59,7 @@ public sealed class CustomersController(
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Customer details</returns>
     [HttpGet("{customerId}")]
-    
+
     public async Task<IActionResult> GetCustomerById(
         Guid customerId,
         CancellationToken cancellationToken)
@@ -91,7 +91,7 @@ public sealed class CustomersController(
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Paginated list of customers</returns>
     [HttpGet]
-    
+
     public async Task<IActionResult> GetCustomers(
         [FromQuery] string? searchTerm = null,
         [FromQuery] int pageNumber = 1,
@@ -128,7 +128,7 @@ public sealed class CustomersController(
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>No content on success</returns>
     [HttpPut("{customerId}")]
-    
+
     [Authorize]
     public async Task<IActionResult> UpdateCustomer(
         Guid customerId,
@@ -168,7 +168,7 @@ public sealed class CustomersController(
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>No content on success</returns>
     [HttpDelete("{customerId}")]
-    
+
     [Authorize]
     public async Task<IActionResult> DeleteCustomer(
         Guid customerId,

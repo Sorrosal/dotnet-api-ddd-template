@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Domain.Common;
+﻿namespace DotnetApiDddTemplate.Domain.Common;
 
 /// <summary>
 /// Base class for auditable entities.

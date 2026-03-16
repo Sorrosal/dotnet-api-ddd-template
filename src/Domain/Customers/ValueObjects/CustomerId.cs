@@ -1,3 +1,3 @@
-namespace DotnetApiDddTemplate.Domain.Customers.ValueObjects;
+﻿namespace DotnetApiDddTemplate.Domain.Customers.ValueObjects;
 
 public readonly record struct CustomerId(Guid Value) : IStronglyTypedId;

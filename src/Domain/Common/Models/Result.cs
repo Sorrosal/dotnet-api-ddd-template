@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Domain.Common.Models;
+﻿namespace DotnetApiDddTemplate.Domain.Common.Models;
 
 /// <summary>
 /// Result pattern for explicit error handling.

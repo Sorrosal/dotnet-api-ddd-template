@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Infrastructure.Persistence.Repositories;
+﻿namespace DotnetApiDddTemplate.Infrastructure.Persistence.Repositories;
 
 /// <summary>
 /// Base repository implementation.

@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Api.Requests;
+﻿namespace DotnetApiDddTemplate.Api.Requests;
 
 /// <summary>
 /// Request DTO for creating a customer.

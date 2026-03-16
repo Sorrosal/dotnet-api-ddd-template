@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Features.Customers.Queries.GetCustomerList;
+﻿namespace DotnetApiDddTemplate.Application.Features.Customers.Queries.GetCustomerList;
 
 /// <summary>
 /// Query to get paginated list of customers.

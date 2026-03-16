@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.UnitTests.Application.Customers.Commands;
+﻿namespace DotnetApiDddTemplate.UnitTests.Application.Customers.Commands;
 
 /// <summary>
 /// Unit tests for CreateCustomerCommandHandler.

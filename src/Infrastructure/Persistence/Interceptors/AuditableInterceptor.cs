@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Infrastructure.Persistence.Interceptors;
+﻿namespace DotnetApiDddTemplate.Infrastructure.Persistence.Interceptors;
 
 /// <summary>
 /// EF Core interceptor that automatically sets auditing fields.

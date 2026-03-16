@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Api.Models;
+﻿namespace DotnetApiDddTemplate.Api.Models;
 
 /// <summary>
 /// Standard error response model for API.

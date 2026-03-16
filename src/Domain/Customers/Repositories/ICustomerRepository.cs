@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Domain.Customers.Repositories;
+﻿namespace DotnetApiDddTemplate.Domain.Customers.Repositories;
 
 /// <summary>
 /// Repository interface for Customer aggregate root.

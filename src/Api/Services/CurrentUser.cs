@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Api.Services;
+﻿namespace DotnetApiDddTemplate.Api.Services;
 
 /// <summary>
 /// Implementation of ICurrentUser that extracts user from HttpContext.

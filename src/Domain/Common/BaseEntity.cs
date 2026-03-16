@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Domain.Common;
+﻿namespace DotnetApiDddTemplate.Domain.Common;
 
 /// <summary>
 /// Marker interface for entities that have domain events.

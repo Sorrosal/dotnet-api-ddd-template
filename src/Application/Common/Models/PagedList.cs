@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Common.Models;
+﻿namespace DotnetApiDddTemplate.Application.Common.Models;
 
 /// <summary>
 /// Represents a paginated list of items.

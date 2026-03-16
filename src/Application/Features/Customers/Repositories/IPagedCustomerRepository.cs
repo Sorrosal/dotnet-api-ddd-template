@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Features.Customers.Repositories;
+﻿namespace DotnetApiDddTemplate.Application.Features.Customers.Repositories;
 
 /// <summary>
 /// Application-level repository interface extending domain repository

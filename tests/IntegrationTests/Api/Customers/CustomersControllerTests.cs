@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.IntegrationTests.Api.Customers;
+﻿namespace DotnetApiDddTemplate.IntegrationTests.Api.Customers;
 
 /// <summary>
 /// Integration tests for CustomersController.

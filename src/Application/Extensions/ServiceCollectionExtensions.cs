@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Extensions;
+﻿namespace DotnetApiDddTemplate.Application.Extensions;
 
 using Microsoft.Extensions.DependencyInjection;
 

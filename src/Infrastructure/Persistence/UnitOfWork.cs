@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Infrastructure.Persistence;
+﻿namespace DotnetApiDddTemplate.Infrastructure.Persistence;
 
 /// <summary>
 /// Unit of Work implementation.

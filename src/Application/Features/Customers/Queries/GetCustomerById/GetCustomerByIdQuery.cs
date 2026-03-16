@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Features.Customers.Queries.GetCustomerById;
+﻿namespace DotnetApiDddTemplate.Application.Features.Customers.Queries.GetCustomerById;
 
 /// <summary>
 /// Query to get a customer by ID.

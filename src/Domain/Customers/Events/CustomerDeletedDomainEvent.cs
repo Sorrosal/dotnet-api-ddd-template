@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Domain.Customers.Events;
+﻿namespace DotnetApiDddTemplate.Domain.Customers.Events;
 
 /// <summary>
 /// Domain event raised when a customer is deleted.

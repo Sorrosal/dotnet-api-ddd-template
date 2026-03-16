@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Common.Models;
+﻿namespace DotnetApiDddTemplate.Application.Common.Models;
 
 /// <summary>
 /// Base specification implementation.

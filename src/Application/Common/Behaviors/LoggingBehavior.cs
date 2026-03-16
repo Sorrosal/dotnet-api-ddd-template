@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Common.Behaviors;
+﻿namespace DotnetApiDddTemplate.Application.Common.Behaviors;
 
 /// <summary>
 /// MediatR logging pipeline behavior.

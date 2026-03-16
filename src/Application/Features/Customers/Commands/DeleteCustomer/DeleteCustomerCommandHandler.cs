@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Features.Customers.Commands.DeleteCustomer;
+﻿namespace DotnetApiDddTemplate.Application.Features.Customers.Commands.DeleteCustomer;
 
 /// <summary>
 /// Handler for DeleteCustomerCommand.

@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.UnitTests.Domain.Customers;
+﻿namespace DotnetApiDddTemplate.UnitTests.Domain.Customers;
 
 /// <summary>
 /// Unit tests for Customer aggregate root.

@@ -1,8 +1,7 @@
-global using System.Collections.Generic;
+﻿global using System.Collections.Generic;
 global using System.Linq;
 global using System.Threading;
 global using System.Threading.Tasks;
-global using MediatR;
 global using DotnetApiDddTemplate.Domain.Common;
 global using DotnetApiDddTemplate.Domain.Common.Interfaces;
 global using DotnetApiDddTemplate.Domain.Common.Models;
@@ -11,3 +10,4 @@ global using DotnetApiDddTemplate.Domain.Customers.Errors;
 global using DotnetApiDddTemplate.Domain.Customers.Events;
 global using DotnetApiDddTemplate.Domain.Customers.Repositories;
 global using DotnetApiDddTemplate.Domain.Customers.ValueObjects;
+global using MediatR;

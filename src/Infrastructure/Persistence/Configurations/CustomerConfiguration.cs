@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Infrastructure.Persistence.Configurations;
+﻿namespace DotnetApiDddTemplate.Infrastructure.Persistence.Configurations;
 
 /// <summary>
 /// EF Core configuration for Customer aggregate root.

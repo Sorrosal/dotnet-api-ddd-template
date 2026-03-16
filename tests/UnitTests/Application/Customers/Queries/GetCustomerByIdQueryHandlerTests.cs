@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.UnitTests.Application.Customers.Queries;
+﻿namespace DotnetApiDddTemplate.UnitTests.Application.Customers.Queries;
 
 /// <summary>
 /// Unit tests for GetCustomerByIdQueryHandler.

@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Features.Customers.Queries.Specifications;
+﻿namespace DotnetApiDddTemplate.Application.Features.Customers.Queries.Specifications;
 
 /// <summary>
 /// Specification for filtering customers by search term.

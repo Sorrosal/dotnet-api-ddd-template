@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Domain.Customers.Entities;
+﻿namespace DotnetApiDddTemplate.Domain.Customers.Entities;
 
 /// <summary>
 /// Customer aggregate root.

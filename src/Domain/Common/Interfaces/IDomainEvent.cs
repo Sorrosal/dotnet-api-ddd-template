@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Domain.Common.Interfaces;
+﻿namespace DotnetApiDddTemplate.Domain.Common.Interfaces;
 
 /// <summary>
 /// Marker interface for domain events.

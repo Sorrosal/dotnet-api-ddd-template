@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Features.Customers.Queries.GetCustomerList;
+﻿namespace DotnetApiDddTemplate.Application.Features.Customers.Queries.GetCustomerList;
 
 /// <summary>
 /// Handler for GetCustomerListQuery.

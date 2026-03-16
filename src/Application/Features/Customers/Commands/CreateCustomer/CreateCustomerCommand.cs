@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Features.Customers.Commands.CreateCustomer;
+﻿namespace DotnetApiDddTemplate.Application.Features.Customers.Commands.CreateCustomer;
 
 /// <summary>
 /// Command to create a new customer.

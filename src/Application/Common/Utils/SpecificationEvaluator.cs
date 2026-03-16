@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Common.Utils;
+﻿namespace DotnetApiDddTemplate.Application.Common.Utils;
 
 /// <summary>
 /// Evaluates specifications against a queryable source.

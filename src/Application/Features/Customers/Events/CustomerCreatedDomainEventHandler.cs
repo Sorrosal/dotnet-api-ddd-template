@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Features.Customers.Events;
+﻿namespace DotnetApiDddTemplate.Application.Features.Customers.Events;
 
 /// <summary>
 /// Domain event handler for CustomerCreatedDomainEvent.

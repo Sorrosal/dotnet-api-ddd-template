@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Features.Customers.Commands.UpdateCustomer;
+﻿namespace DotnetApiDddTemplate.Application.Features.Customers.Commands.UpdateCustomer;
 
 /// <summary>
 /// Command to update an existing customer.

@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Application.Common.Interfaces;
+﻿namespace DotnetApiDddTemplate.Application.Common.Interfaces;
 
 /// <summary>
 /// Interface for accessing current user information.

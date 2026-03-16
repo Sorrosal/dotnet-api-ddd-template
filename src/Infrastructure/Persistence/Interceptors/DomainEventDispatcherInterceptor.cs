@@ -1,4 +1,4 @@
-namespace DotnetApiDddTemplate.Infrastructure.Persistence.Interceptors;
+﻿namespace DotnetApiDddTemplate.Infrastructure.Persistence.Interceptors;
 
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
