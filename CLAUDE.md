@@ -178,3 +178,36 @@ public interface IOrderRepository : IRepository<Order, OrderId>
 - Preferir collection expressions (`[]`) sobre `new List<T>()`.
 - Preferir `sealed` por defecto en todas las clases.
 - No usar `#region`. No usar `this.` salvo ambigüedad.
+
+## Commit Conventions
+
+Todos los commits deben seguir **Conventional Commits** en **inglés**:
+
+```
+feat: add new feature
+fix: fix a bug
+chore: maintenance task
+docs: documentation
+refactor: code refactoring
+test: test-related changes
+```
+
+### Important Rules
+
+- ✅ Usar Conventional Commits format
+- ✅ Mensajes en inglés
+- ❌ **NO agregar** footer `Co-Authored-By`
+- ❌ **NO mencionar** herramientas de IA en commits
+- Commits aparecen como del developer que los hace
+
+**Ejemplo:**
+```bash
+git commit -m "feat: add order soft delete support"
+```
+
+No:
+```bash
+git commit -m "feat: add order soft delete support
+
+Co-Authored-By: Some AI Tool <noreply@example.com>"
+```
