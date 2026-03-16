@@ -37,7 +37,10 @@ public sealed class DomainEventDispatcherInterceptor(
             }
         }
 
-        // Dispatch events
+        // Save to database first
+        var saveResult = await base.SavingChangesAsync(eventData, result, cancellationToken);
+
+        // Only dispatch events if SaveChanges was successful
         foreach (var domainEvent in domainEvents)
         {
             logger.LogInformation(
@@ -47,6 +50,6 @@ public sealed class DomainEventDispatcherInterceptor(
             await mediator.Publish(domainEvent, cancellationToken);
         }
 
-        return await base.SavingChangesAsync(eventData, result, cancellationToken);
+        return saveResult;
     }
 }
