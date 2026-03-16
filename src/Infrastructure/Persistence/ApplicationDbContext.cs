@@ -5,12 +5,17 @@
 /// Central point for data access with all aggregates and configurations.
 /// </summary>
 public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : DbContext(options)
+    : IdentityDbContext<ApplicationUser, IdentityRole, string>(options)
 {
     /// <summary>
     /// Customers aggregate root DbSet.
     /// </summary>
     public DbSet<Customer> Customers { get; set; } = null!;
+
+    /// <summary>
+    /// Refresh tokens DbSet.
+    /// </summary>
+    public DbSet<ApplicationRefreshToken> RefreshTokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -49,13 +49,7 @@ try
         });
 
     // Add Swagger
-    builder.Services.AddSwaggerGen(options =>
-    {
-        var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-        var xmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, xmlFile);
-        if (System.IO.File.Exists(xmlPath))
-            options.IncludeXmlComments(xmlPath);
-    });
+    builder.Services.AddSwaggerGen();
 
     // Add Health Checks
     builder.Services.AddHealthChecks();
@@ -73,6 +67,10 @@ try
     app.UseCors();
     app.UseRouting();
 
+    // Authentication and authorization
+    app.UseAuthentication();
+    app.UseAuthorization();
+
     // Map endpoints
     app.MapControllers();
     app.MapHealthChecks("/health/live").WithName("Health Check - Live");
@@ -83,6 +81,17 @@ try
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await dbContext.Database.MigrateAsync();
+    }
+
+    // Seed roles
+    using (var scope = app.Services.CreateScope())
+    {
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        foreach (var role in new[] { "Admin", "User" })
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+                await roleManager.CreateAsync(new IdentityRole(role));
+        }
     }
 
     await app.RunAsync();

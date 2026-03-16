@@ -19,6 +19,10 @@ public static class ServiceCollectionExtensions
         });
 
         // Register individual validators
+        services.AddScoped<FluentValidation.IValidator<RegisterCommand>, RegisterCommandValidator>();
+        services.AddScoped<FluentValidation.IValidator<LoginCommand>, LoginCommandValidator>();
+        services.AddScoped<FluentValidation.IValidator<RefreshTokenCommand>, RefreshTokenCommandValidator>();
+        services.AddScoped<FluentValidation.IValidator<LogoutCommand>, LogoutCommandValidator>();
         services.AddScoped<FluentValidation.IValidator<CreateCustomerCommand>, CreateCustomerCommandValidator>();
         services.AddScoped<FluentValidation.IValidator<UpdateCustomerCommand>, UpdateCustomerCommandValidator>();
         services.AddScoped<FluentValidation.IValidator<DeleteCustomerCommand>, DeleteCustomerCommandValidator>();
