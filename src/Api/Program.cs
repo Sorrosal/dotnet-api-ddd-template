@@ -1,8 +1,4 @@
-using Asp.Versioning;
-using DotnetApiDddTemplate.Api;
-using DotnetApiDddTemplate.Application;
-using DotnetApiDddTemplate.Infrastructure;
-using Serilog;
+﻿using Serilog;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -79,8 +75,8 @@ try
 
     // Map endpoints
     app.MapControllers();
-    app.MapHealthChecks("/health/live").WithName("Health Check - Live").WithOpenApi();
-    app.MapHealthChecks("/health/ready").WithName("Health Check - Ready").WithOpenApi();
+    app.MapHealthChecks("/health/live").WithName("Health Check - Live");
+    app.MapHealthChecks("/health/ready").WithName("Health Check - Ready");
 
     // Migrate database
     using (var scope = app.Services.CreateScope())
