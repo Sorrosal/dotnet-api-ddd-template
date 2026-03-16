@@ -77,8 +77,6 @@ dist/
 wwwroot/lib/
 
 # Build output
-!bin/
-!obj/
 dist/
 build/
 
