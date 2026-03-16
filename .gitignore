@@ -1,0 +1,100 @@
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.so
+*.dylib
+
+# Visual Studio
+.vs/
+.vscode/
+*.sln.iml
+.idea/
+*.swp
+*.swo
+*~
+
+# IDE
+*.user
+*.suo
+*.csproj.user
+*.vbproj.user
+*.vcxproj.user
+
+# Build artifacts
+PublishProfiles/
+Properties/PublishProfiles/
+ClientBin/
+StyleCopReport.xml
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+.packages/
+
+# Testing
+TestResults/
+coverage/
+*.trx
+*.coverage
+
+# Runtime
+appsettings.Development.json
+appsettings.local.json
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+migrations/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+.idea
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# Dependencies
+node_modules/
+dist/
+wwwroot/lib/
+
+# Build output
+!bin/
+!obj/
+dist/
+build/
+
+# EF Core
+*.Migrations.cs
+
+# dotnet
+.dotnet/
+
+# Rider
+.idea/
+*.sln.iml
+*.user
+
+# Local history for Visual Studio Code
+.history/
+
+# Tools
+tools/
+Tool Installers/
