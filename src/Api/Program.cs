@@ -48,8 +48,8 @@ try
             options.SuppressMapClientErrors = true;
         });
 
-    // Add Swagger
-    builder.Services.AddSwaggerGen();
+    // Add OpenAPI (native .NET 10)
+    builder.Services.AddOpenApi();
 
     // Add Health Checks
     builder.Services.AddHealthChecks();
@@ -59,8 +59,8 @@ try
     // Use middleware
     if (app.Environment.IsDevelopment())
     {
-        app.UseSwagger();
-        app.UseSwaggerUI();
+        app.MapOpenApi();
+        app.MapScalarApiReference();
     }
 
     app.UseHttpsRedirection();
